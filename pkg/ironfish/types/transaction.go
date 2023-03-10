@@ -1,20 +1,22 @@
 package types
 
+type Output struct {
+	PublicAddress string `json:"publicAddress"`
+	Amount        string `json:"amount"`
+	Memo          string `json:"memo"`
+	AssetId       string `json:"assetId"`
+}
+
 const CreateTransactionPath = "wallet/createTransaction"
 
 type CreateTransactionRequest struct {
-	Account string `json:"account"`
-	Outputs []struct {
-		PublicAddress string `json:"publicAddress"`
-		Amount        string `json:"amount"`
-		Memo          string `json:"memo"`
-		AssetId       string `json:"assetId"`
-	} `json:"outputs"`
-	Fee             string `json:"fee"`
-	FeeRate         string `json:"feeRate"`
-	Expiration      uint   `json:"expiration"`
-	ExpirationDelta uint   `json:"expirationDelta"`
-	Confirmations   uint   `json:"confirmations"`
+	Account         string   `json:"account"`
+	Outputs         []Output `json:"outputs"`
+	Fee             string   `json:"fee"`
+	FeeRate         string   `json:"feeRate"`
+	Expiration      uint     `json:"expiration"`
+	ExpirationDelta uint     `json:"expirationDelta"`
+	Confirmations   uint     `json:"confirmations"`
 }
 type CreateTransactionResponse struct {
 	Transaction string `json:"transaction"`
@@ -28,6 +30,7 @@ type PostTransactionRequest struct {
 	Broadcast   bool   `json:"broadcast"`
 }
 type PostTransactionResponse struct {
+	Hash        string `json:"hash"`
 	Transaction string `json:"transaction"`
 }
 
@@ -40,6 +43,22 @@ type AddTransactionRequest struct {
 type AddTransactionResponse struct {
 	Hash     string   `json:"hash"`
 	Accounts []string `json:"accounts"`
+}
+
+const SendTransactionPath = "wallet/sendTransaction"
+
+type SendTransactionRequest struct {
+	Account         string   `json:"account"`
+	Outputs         []Output `json:"outputs"`
+	Fee             string   `json:"fee"`
+	Expiration      uint     `json:"expiration"`
+	ExpirationDelta uint     `json:"expirationDelta"`
+	Confirmations   uint     `json:"confirmations"`
+}
+type SendTransactionResponse struct {
+	Account     string `json:"account"`
+	Hash        string `json:"hash"`
+	Transaction string `json:"transaction"`
 }
 
 const GetAccountTransactionPath = "wallet/getAccountTransaction"
@@ -76,17 +95,10 @@ type GetAccountTransactionResponse struct {
 		BurnsCount         uint                   `json:"burnsCount"`
 		Timestamp          uint                   `json:"timestamp"`
 		Notes              []AccountDecryptedNote `json:"notes"`
-		assetBalanceDeltas []struct {
+		AssetBalanceDeltas []struct {
 			AssetId   string `json:"assetId"`
 			AssetName string `json:"assetName"`
 			Delta     string `json:"delta"`
 		}
 	} `json:"transaction"`
 }
-
-/*
-createTransaction
-postTransaction
-addTransaction
-getAccountTransaction
-*/

@@ -20,11 +20,22 @@ type reqMessage struct {
 	MsgData reqMsgData `json:"data"`
 }
 
+type reqMessageNoData struct {
+	MsgType string           `json:"type"`
+	MsgData reqMsgDataNoData `json:"data"`
+}
+
 type reqMsgData struct {
 	Mid       uint            `json:"mid"`
 	MsgType   string          `json:"type"`
 	AuthToken string          `json:"auth"`
 	Data      json.RawMessage `json:"data"`
+}
+
+type reqMsgDataNoData struct {
+	Mid       uint   `json:"mid"`
+	MsgType   string `json:"type"`
+	AuthToken string `json:"auth"`
 }
 
 type respMessage struct {
@@ -91,7 +102,6 @@ func (tc *TlsClient) Request(path string, data []byte, timeout time.Duration) ([
 	defer func() {
 		delete(tc.msgChannel, mid)
 	}()
-
 	ticker := time.NewTicker(timeout)
 	checkTicker := time.NewTicker(readScanTime)
 	tc.msgChannel[mid] = make(chan respMsgData)
@@ -118,27 +128,41 @@ func (tc *TlsClient) sendMsg(path string, data []byte) (uint, error) {
 	if tc.conn == nil {
 		return 0, errors.New("not connect to server")
 	}
-
-	msg := &reqMessage{
-		MsgType: "message",
-		MsgData: reqMsgData{
-			Mid:       tc.msgCount,
-			MsgType:   path,
-			AuthToken: tc.AuthToken,
-			Data:      data,
-		},
+	var msg any
+	var mid = tc.msgCount
+	if len(data) > 2 {
+		msg = &reqMessage{
+			MsgType: "message",
+			MsgData: reqMsgData{
+				Mid:       mid,
+				MsgType:   path,
+				AuthToken: tc.AuthToken,
+				Data:      data,
+			},
+		}
+	} else {
+		msg = &reqMessageNoData{
+			MsgType: "message",
+			MsgData: reqMsgDataNoData{
+				Mid:       mid,
+				MsgType:   path,
+				AuthToken: tc.AuthToken,
+			},
+		}
 	}
+
 	reqMsg, err := json.Marshal(msg)
 	if err != nil {
 		return 0, err
 	}
 
+	fmt.Println(string(reqMsg))
 	tc.msgCount++
 	_, err = tc.conn.Write(append(reqMsg, endChar))
 	if err != nil {
-		return msg.MsgData.Mid, err
+		return mid, err
 	}
-	return msg.MsgData.Mid, err
+	return mid, err
 }
 
 func (tc *TlsClient) recv() {

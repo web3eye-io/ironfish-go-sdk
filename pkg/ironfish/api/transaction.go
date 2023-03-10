@@ -22,20 +22,42 @@ func (c *Client) CreateTransaction(req *types.CreateTransactionRequest) (*types.
 func (c *Client) PostTransaction(req *types.PostTransactionRequest) (*types.PostTransactionResponse, error) {
 	resp := &types.PostTransactionResponse{}
 	err := request(c, types.PostTransactionPath, req, resp)
+
+	if err == nil && len(resp.Transaction) > 0 {
+		txHash, err := getTxHash(resp.Transaction)
+		if err != nil {
+			return nil, err
+		}
+		resp.Hash = txHash
+	}
 	return resp, err
 }
 func (c *Client) AddTransaction(req *types.AddTransactionRequest) (*types.AddTransactionResponse, error) {
 	resp := &types.AddTransactionResponse{}
-	err := request(c, types.CreateTransactionPath, req, resp)
+	err := request(c, types.AddTransactionPath, req, resp)
 
-	if err != nil && len(resp.Accounts) > 0 {
-		txData, err := hex.DecodeString(req.Transaction)
+	if err == nil && len(resp.Accounts) > 0 {
+		txHash, err := getTxHash(req.Transaction)
 		if err != nil {
-			return resp, err
+			return nil, err
 		}
-		_txHash := blake3.Sum256(txData)
-		resp.Hash = hex.EncodeToString(_txHash[:])
+		resp.Hash = txHash
 	}
 
 	return resp, err
+}
+
+func (c *Client) SpendTransaction(req *types.SendTransactionRequest) (*types.SendTransactionResponse, error) {
+	resp := &types.SendTransactionResponse{}
+	err := request(c, types.SendTransactionPath, req, resp)
+	return resp, err
+}
+
+func getTxHash(tx string) (string, error) {
+	txData, err := hex.DecodeString(tx)
+	if err != nil {
+		return "", err
+	}
+	_txHash := blake3.Sum256(txData)
+	return hex.EncodeToString(_txHash[:]), nil
 }

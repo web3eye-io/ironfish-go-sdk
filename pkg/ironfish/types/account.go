@@ -1,5 +1,15 @@
 package types
 
+type Account struct {
+	Version         int    `json:"version"`
+	Name            string `json:"name"`
+	SpendingKey     string `json:"spendingKey"`
+	ViewKey         string `json:"viewKey"`
+	IncomingViewKey string `json:"incomingViewKey"`
+	OutgoingViewKey string `json:"outgoingViewKey"`
+	PublicAddress   string `json:"publicAddress"`
+}
+
 const GetBalancePath = "wallet/getBalance"
 
 type GetBalanceRequest struct {
@@ -29,15 +39,7 @@ type ExportAccountRequest struct {
 	ViewOnly bool   `json:"viewOnly"`
 }
 type ExportAccountResponse struct {
-	Account struct {
-		Name            string `json:"name"`
-		SpendingKey     string `json:"spendingKey"`
-		ViewKey         string `json:"viewKey"`
-		IncomingViewKey string `json:"incomingViewKey"`
-		OutgoingViewKey string `json:"outgoingViewKey"`
-		PublicAddress   string `json:"publicAddress"`
-		Version         int    `json:"version"`
-	} `json:"account"`
+	Account Account `json:"account"`
 }
 
 const CreateAccountPath = "wallet/create"
@@ -46,6 +48,7 @@ type CreateAccountRequest struct {
 	Name    string `json:"name"`
 	Default bool   `json:"default"`
 }
+
 type CreateAccountResponse struct {
 	Name             string `json:"name"`
 	PublicAddress    string `json:"publicAddress"`
@@ -55,16 +58,8 @@ type CreateAccountResponse struct {
 const ImportAccountPath = "wallet/importAccount"
 
 type ImportAccountRequest struct {
-	Account struct {
-		Version         int    `json:"version"`
-		Name            string `json:"name"`
-		SpendingKey     string `json:"spendingKey"`
-		ViewKey         string `json:"viewKey"`
-		IncomingViewKey string `json:"incomingViewKey"`
-		OutgoingViewKey string `json:"outgoingViewKey"`
-		PublicAddress   string `json:"publicAddress"`
-	} `json:"account"`
-	Rescan bool `json:"rescan"`
+	Account Account `json:"account"`
+	Rescan  bool    `json:"rescan"`
 }
 type ImportAccountResponse struct {
 	Name             string `json:"name"`
