@@ -12,7 +12,7 @@ import (
 const (
 	NetworkType  = "tcp"
 	endChar      = '\x0c'
-	readScanTime = time.Microsecond * 200
+	readScanTime = time.Microsecond * 20
 )
 
 type reqMessage struct {
@@ -183,7 +183,6 @@ func (tc *TlsClient) recv() {
 				fmt.Println(err)
 			}
 			if ok := tc.msgChannel[respMsg.MsgData.Id]; ok != nil {
-				time.Sleep(time.Second * 2)
 				tc.msgChannel[respMsg.MsgData.Id] <- respMsg.MsgData
 			}
 		}
