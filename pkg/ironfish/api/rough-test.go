@@ -127,3 +127,22 @@ func TestTransaactionApi(t *testing.T) {
 	getATResp, err := sdk_on.GetAccountTransaction(&types.GetAccountTransactionRequest{Account: "apple", Hash: "3ae8ff87241c20a4045134fc2ced3bf18d3ae0a7211920098bec3549599b2162"})
 	fmt.Println(utils.PrettyStruct(getATResp), err)
 }
+
+func TestNodeStatus(t *testing.T) {
+	sdk_on := NewTlsClient("172.16.3.90:8020", "421fe34xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx71")
+	sdk_off := NewTlsClient("127.0.0.1:8020", "8ae8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx2394c79")
+
+	err := sdk_on.Connect(ConnectTimeout)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = sdk_off.Connect(ConnectTimeout)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	getNSReq, err := sdk_on.GetNodeStatus()
+	fmt.Println(utils.PrettyStruct(getNSReq), err)
+	fmt.Println(utils.PrettyStruct(getNSReq), err)
+}
