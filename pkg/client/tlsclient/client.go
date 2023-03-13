@@ -12,7 +12,7 @@ import (
 const (
 	NetworkType  = "tcp"
 	endChar      = '\x0c'
-	readScanTime = time.Microsecond * 20
+	readScanTime = time.Microsecond * 50
 )
 
 type reqMessage struct {
@@ -176,6 +176,9 @@ func (tc *TlsClient) recv() {
 			if err != nil {
 				fmt.Println(err)
 				tc.Close()
+			}
+			if len(recvData) < 2 {
+				continue
 			}
 			recvData = recvData[:len(recvData)-1]
 			err = json.Unmarshal(recvData, respMsg)
