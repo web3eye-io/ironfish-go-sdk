@@ -13,8 +13,8 @@ const ConnectTimeout = time.Second * 3
 
 func TestBaseApi(t *testing.T) {
 	// any key need be replace
-	sdk_on := NewTlsClient("172.16.3.90:8020", "421fxxxxxxxxxxxxxxxxxxxxxxxxxxxx542ebb1071")
-	sdk_off := NewTlsClient("127.0.0.1:8020", "8ae867d9xxxxxxxxxxxxxxxxxxxxxxxxxx0a8fa1f2394c79")
+	sdk_on := NewClient("172.16.3.90:8020", "421fxxxxxxxxxxxxxxxxxxxxxxxxxxxx542ebb1071", true)
+	sdk_off := NewClient("127.0.0.1:8020", "8ae867d9xxxxxxxxxxxxxxxxxxxxxxxxxx0a8fa1f2394c79", true)
 
 	err := sdk_on.Connect(ConnectTimeout)
 	if err != nil {
@@ -73,8 +73,8 @@ func TestBaseApi(t *testing.T) {
 }
 
 func TestTransaactionApi(t *testing.T) {
-	sdk_on := NewTlsClient("172.16.3.90:8020", "421fe347266exxxxxxxxxxxxxxxxxxxxx7c542ebb1071")
-	sdk_off := NewTlsClient("127.0.0.1:8020", "8ae867d926eaxxxxxxxxxxxxxxxxxxxxxxxae0a8fa1f2394c79")
+	sdk_on := NewClient("172.16.3.90:8020", "421fe347266exxxxxxxxxxxxxxxxxxxxx7c542ebb1071", true)
+	sdk_off := NewClient("127.0.0.1:8020", "8ae867d926eaxxxxxxxxxxxxxxxxxxxxxxxae0a8fa1f2394c79", true)
 
 	err := sdk_on.Connect(ConnectTimeout)
 	if err != nil {
@@ -129,8 +129,8 @@ func TestTransaactionApi(t *testing.T) {
 }
 
 func TestNodeStatus(t *testing.T) {
-	sdk_on := NewTlsClient("172.16.3.90:8020", "421fe34xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx71")
-	sdk_off := NewTlsClient("127.0.0.1:8020", "8ae8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx2394c79")
+	sdk_on := NewClient("172.16.3.90:8020", "421fe34xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx71", true)
+	sdk_off := NewClient("127.0.0.1:8020", "8ae8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx2394c79", true)
 
 	err := sdk_on.Connect(ConnectTimeout)
 	if err != nil {

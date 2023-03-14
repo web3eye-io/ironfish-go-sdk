@@ -22,7 +22,7 @@ func TestClient(t *testing.T) {
 	//  please give right addr and authToken
 	var addr = "172.16.3.90:8020"
 	var authToken = "421fe347266eef69d83d3ec5d78e9872c961119bc95a2efe4a017c542ebb1071"
-	cli := NewClient(addr, authToken)
+	cli := NewClient(addr, authToken, true)
 	err = cli.Connect(time.Second)
 	assert.Nil(t, err)
 	assert.NotNil(t, cli)

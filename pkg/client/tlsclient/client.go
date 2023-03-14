@@ -6,70 +6,29 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"time"
+
+	"github.com/web3eye-io/ironfish-go-sdk/pkg/client"
 )
-
-const (
-	NetworkType  = "tcp"
-	endChar      = '\x0c'
-	readScanTime = time.Microsecond * 50
-)
-
-type reqMessage struct {
-	MsgType string     `json:"type"`
-	MsgData reqMsgData `json:"data"`
-}
-
-type reqMessageNoData struct {
-	MsgType string           `json:"type"`
-	MsgData reqMsgDataNoData `json:"data"`
-}
-
-type reqMsgData struct {
-	Mid       uint            `json:"mid"`
-	MsgType   string          `json:"type"`
-	AuthToken string          `json:"auth"`
-	Data      json.RawMessage `json:"data"`
-}
-
-type reqMsgDataNoData struct {
-	Mid       uint   `json:"mid"`
-	MsgType   string `json:"type"`
-	AuthToken string `json:"auth"`
-}
-
-type respMessage struct {
-	MsgType string      `json:"type"`
-	MsgData respMsgData `json:"data"`
-}
-
-type respMsgData struct {
-	Id     uint            `json:"id"`
-	Status uint            `json:"status"`
-	Data   json.RawMessage `json:"data"`
-}
-
-type respWrongMsg struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
-	Stack   string `json:"stack"`
-}
 
 type TlsClient struct {
 	Address     string
 	AuthToken   string
+	tlsOn       bool
 	msgCount    uint
-	conn        *tls.Conn
-	msgChannel  map[uint]chan respMsgData
+	conn        net.Conn
+	msgChannel  map[uint]chan client.RespMsgData
 	connChannel chan bool
 }
 
-func NewClient(addr string, authToken string) *TlsClient {
+func NewClient(addr string, authToken string, tlsOn bool) *TlsClient {
 	return &TlsClient{
 		Address:     addr,
 		AuthToken:   authToken,
+		tlsOn:       tlsOn,
 		msgCount:    1,
-		msgChannel:  make(map[uint]chan respMsgData),
+		msgChannel:  make(map[uint]chan client.RespMsgData),
 		connChannel: make(chan bool),
 	}
 }
@@ -82,12 +41,20 @@ func (tc *TlsClient) Connect(timeout time.Duration) error {
 	conf := &tls.Config{
 		InsecureSkipVerify: true,
 	}
-
-	conn, err := tls.Dial(NetworkType, tc.Address, conf)
-	if err != nil {
-		return err
+	if tc.tlsOn {
+		conn, err := tls.Dial(client.NetworkType, tc.Address, conf)
+		if err != nil {
+			return err
+		}
+		tc.conn = conn
+	} else {
+		conn, err := net.Dial(client.NetworkType, tc.Address)
+		if err != nil {
+			return err
+		}
+		tc.conn = conn
 	}
-	tc.conn = conn
+
 	go tc.recv()
 	tc.connChannel = make(chan bool)
 	return nil
@@ -103,8 +70,8 @@ func (tc *TlsClient) Request(path string, data []byte, timeout time.Duration) ([
 		delete(tc.msgChannel, mid)
 	}()
 	ticker := time.NewTicker(timeout)
-	checkTicker := time.NewTicker(readScanTime)
-	tc.msgChannel[mid] = make(chan respMsgData)
+	checkTicker := time.NewTicker(client.ReadScanTime)
+	tc.msgChannel[mid] = make(chan client.RespMsgData)
 	for {
 		select {
 		case <-ticker.C:
@@ -115,7 +82,7 @@ func (tc *TlsClient) Request(path string, data []byte, timeout time.Duration) ([
 			}
 		case resp := <-tc.msgChannel[mid]:
 			if resp.Status != 200 {
-				wrongMsg := &respWrongMsg{}
+				wrongMsg := &client.RespWrongMsg{}
 				json.Unmarshal(resp.Data, wrongMsg)
 				return nil, errors.New(wrongMsg.Message)
 			}
@@ -131,9 +98,9 @@ func (tc *TlsClient) sendMsg(path string, data []byte) (uint, error) {
 	var msg any
 	var mid = tc.msgCount
 	if len(data) > 2 {
-		msg = &reqMessage{
+		msg = &client.ReqMessage{
 			MsgType: "message",
-			MsgData: reqMsgData{
+			MsgData: client.ReqMsgData{
 				Mid:       mid,
 				MsgType:   path,
 				AuthToken: tc.AuthToken,
@@ -141,9 +108,9 @@ func (tc *TlsClient) sendMsg(path string, data []byte) (uint, error) {
 			},
 		}
 	} else {
-		msg = &reqMessageNoData{
+		msg = &client.ReqMessageNoData{
 			MsgType: "message",
-			MsgData: reqMsgDataNoData{
+			MsgData: client.ReqMsgDataNoData{
 				Mid:       mid,
 				MsgType:   path,
 				AuthToken: tc.AuthToken,
@@ -155,24 +122,24 @@ func (tc *TlsClient) sendMsg(path string, data []byte) (uint, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	tc.msgCount++
-	_, err = tc.conn.Write(append(reqMsg, endChar))
+	_, err = tc.conn.Write(append(reqMsg, client.EndChar))
 	if err != nil {
 		return mid, err
 	}
+
 	return mid, err
 }
 
 func (tc *TlsClient) recv() {
 	// start recv
 	go func() {
-		respMsg := &respMessage{}
-		ticker := time.NewTicker(readScanTime)
+		respMsg := &client.RespMessage{}
+		ticker := time.NewTicker(client.ReadScanTime)
 		reader := bufio.NewReader(tc.conn)
 		for {
 			<-ticker.C
-			recvData, err := reader.ReadBytes(endChar)
+			recvData, err := reader.ReadBytes(client.EndChar)
 			if err != nil {
 				fmt.Println(err)
 				tc.Close()

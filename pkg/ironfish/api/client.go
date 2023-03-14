@@ -12,8 +12,8 @@ type Client struct {
 	client.IronfishClient
 }
 
-func NewTlsClient(addr string, authToken string) *Client {
-	tlsCli := tlsclient.NewClient(addr, authToken)
+func NewClient(addr string, authToken string, tlsOn bool) *Client {
+	tlsCli := tlsclient.NewClient(addr, authToken, tlsOn)
 	return &Client{tlsCli}
 }
 
