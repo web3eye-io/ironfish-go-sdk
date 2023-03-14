@@ -1,5 +1,15 @@
 package types
 
+const (
+	CONFIRMED   TransactionStatus = "confirmed"
+	EXPIRED     TransactionStatus = "expired"
+	PENDING     TransactionStatus = "pending"
+	UNCONFIRMED TransactionStatus = "unconfirmed"
+	UNKNOWN     TransactionStatus = "unknown"
+)
+
+type TransactionStatus string
+
 type Output struct {
 	PublicAddress string `json:"publicAddress"`
 	Amount        string `json:"amount"`
@@ -84,7 +94,7 @@ type GetAccountTransactionResponse struct {
 	Account     string `json:"account"`
 	Transaction struct {
 		Hash               string                 `json:"hash"`
-		Status             string                 `json:"status"`
+		Status             TransactionStatus      `json:"status"`
 		Type               string                 `json:"type"`
 		Fee                string                 `json:"fee"`
 		BlockHash          string                 `json:"blockHash"`
