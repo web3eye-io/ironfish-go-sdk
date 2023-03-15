@@ -110,8 +110,7 @@ func TestTransaactionApi(t *testing.T) {
 				Memo:          "kuku",
 			},
 		},
-		Fee:     "1",
-		FeeRate: esFRResp.Average,
+		Fee: "1",
 	})
 	fmt.Println(utils.PrettyStruct(createTXResp), err)
 

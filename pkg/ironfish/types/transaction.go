@@ -14,19 +14,19 @@ type Output struct {
 	PublicAddress string `json:"publicAddress"`
 	Amount        string `json:"amount"`
 	Memo          string `json:"memo"`
-	AssetId       string `json:"assetId"`
+	// AssetId       string `json:"assetId"`
 }
 
 const CreateTransactionPath = "wallet/createTransaction"
 
 type CreateTransactionRequest struct {
-	Account         string   `json:"account"`
-	Outputs         []Output `json:"outputs"`
-	Fee             string   `json:"fee"`
-	FeeRate         string   `json:"feeRate"`
-	Expiration      uint     `json:"expiration"`
-	ExpirationDelta uint     `json:"expirationDelta"`
-	Confirmations   uint     `json:"confirmations"`
+	Account string   `json:"account"`
+	Outputs []Output `json:"outputs"`
+	Fee     string   `json:"fee"`
+	// FeeRate         string   `json:"feeRate"`
+	// Expiration      uint     `json:"expiration"`
+	// ExpirationDelta uint     `json:"expirationDelta"`
+	// Confirmations   uint     `json:"confirmations"`
 }
 type CreateTransactionResponse struct {
 	Transaction string `json:"transaction"`
@@ -58,12 +58,12 @@ type AddTransactionResponse struct {
 const SendTransactionPath = "wallet/sendTransaction"
 
 type SendTransactionRequest struct {
-	Account         string   `json:"account"`
-	Outputs         []Output `json:"outputs"`
-	Fee             string   `json:"fee"`
-	Expiration      uint     `json:"expiration"`
-	ExpirationDelta uint     `json:"expirationDelta"`
-	Confirmations   uint     `json:"confirmations"`
+	Account string   `json:"account"`
+	Outputs []Output `json:"outputs"`
+	Fee     string   `json:"fee"`
+	// Expiration      uint     `json:"expiration"`
+	// ExpirationDelta uint     `json:"expirationDelta"`
+	// Confirmations   uint     `json:"confirmations"`
 }
 type SendTransactionResponse struct {
 	Account     string `json:"account"`
