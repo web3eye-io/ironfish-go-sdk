@@ -122,6 +122,7 @@ func (tc *TlsClient) sendMsg(path string, data []byte) (uint, error) {
 	if err != nil {
 		return 0, err
 	}
+	fmt.Println("reqMsg:", string(reqMsg))
 	tc.msgCount++
 	_, err = tc.conn.Write(append(reqMsg, client.EndChar))
 	if err != nil {
