@@ -8,6 +8,7 @@ type Account struct {
 	IncomingViewKey string `json:"incomingViewKey"`
 	OutgoingViewKey string `json:"outgoingViewKey"`
 	PublicAddress   string `json:"publicAddress"`
+	CreateAt        string `json:"createAt"`
 }
 
 const GetBalancePath = "wallet/getBalance"
