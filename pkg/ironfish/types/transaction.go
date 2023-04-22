@@ -53,6 +53,7 @@ type AddTransactionRequest struct {
 type AddTransactionResponse struct {
 	Hash     string   `json:"hash"`
 	Accounts []string `json:"accounts"`
+	Accepted bool     `json:"accepted"`
 }
 
 const SendTransactionPath = "wallet/sendTransaction"

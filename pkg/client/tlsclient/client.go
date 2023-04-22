@@ -66,12 +66,13 @@ func (tc *TlsClient) Request(path string, data []byte, timeout time.Duration) ([
 		return nil, err
 	}
 
+	tc.msgChannel[mid] = make(chan client.RespMsgData)
 	defer func() {
 		delete(tc.msgChannel, mid)
 	}()
+
 	ticker := time.NewTicker(timeout)
 	checkTicker := time.NewTicker(client.ReadScanTime)
-	tc.msgChannel[mid] = make(chan client.RespMsgData)
 	for {
 		select {
 		case <-ticker.C:
@@ -122,7 +123,6 @@ func (tc *TlsClient) sendMsg(path string, data []byte) (uint, error) {
 	if err != nil {
 		return 0, err
 	}
-	fmt.Println("reqMsg:", string(reqMsg))
 	tc.msgCount++
 	_, err = tc.conn.Write(append(reqMsg, client.EndChar))
 	if err != nil {
