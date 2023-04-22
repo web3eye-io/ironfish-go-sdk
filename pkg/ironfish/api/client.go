@@ -17,7 +17,7 @@ func NewClient(addr string, authToken string, tlsOn bool) *Client {
 	return &Client{tlsCli}
 }
 
-const RequestTimeout = time.Second * 12
+const RequestTimeout = time.Second * 60
 
 func request[REQ any, RESP any](c client.IronfishClient, path string, req REQ, resp RESP) error {
 	reqData, err := json.Marshal(req)
