@@ -29,8 +29,6 @@ func request[REQ any, RESP any](c client.IronfishClient, path string, req REQ, r
 		return err
 	}
 	err = json.Unmarshal(respData, resp)
-	if err != nil {
-		return err
-	}
+
 	return err
 }
