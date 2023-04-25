@@ -90,7 +90,7 @@ func (tc *TlsClient) Request(path string, data []byte, timeout time.Duration) ([
 				return nil, errors.New("not connect to server")
 			}
 		case resp := <-tc.msgChannel[mid]:
-			log.Printf("recv msg, traceID: %s, recv msg: {mid: %s, status: %s, data:%s}, time: %s", traceID, resp.Id, resp.Status, string(resp.Data), time.Now().String())
+			log.Printf("recv msg, traceID: %s, recv msg: {mid: %d, status: %d, data:%s}, time: %s", traceID, resp.Id, resp.Status, string(resp.Data), time.Now().String())
 			if resp.Status != 200 {
 				wrongMsg := &client.RespWrongMsg{}
 				json.Unmarshal(resp.Data, wrongMsg)
