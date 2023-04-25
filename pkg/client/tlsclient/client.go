@@ -66,7 +66,7 @@ func (tc *TlsClient) Connect(timeout time.Duration) error {
 }
 
 func (tc *TlsClient) Request(path string, data []byte, timeout time.Duration) ([]byte, error) {
-	traceID := uuid.NewString
+	traceID := uuid.NewString()
 	mid, err := tc.sendMsg(path, data, traceID)
 	if err != nil {
 		return nil, err
