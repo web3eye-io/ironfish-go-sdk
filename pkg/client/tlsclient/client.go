@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"time"
 
@@ -125,6 +126,7 @@ func (tc *TlsClient) sendMsg(path string, data []byte) (uint, error) {
 	}
 	tc.msgCount++
 	_, err = tc.conn.Write(append(reqMsg, client.EndChar))
+	log.Printf("send msg: %s ,req err: %s", string(reqMsg), err)
 	if err != nil {
 		return mid, err
 	}
@@ -141,6 +143,7 @@ func (tc *TlsClient) recv() {
 		for {
 			<-ticker.C
 			recvData, err := reader.ReadBytes(client.EndChar)
+			log.Printf("recv msg: %s ,recv err: %s", string(recvData), err)
 			if err != nil {
 				fmt.Println(err)
 				tc.Close()
