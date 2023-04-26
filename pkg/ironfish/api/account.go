@@ -27,3 +27,9 @@ func (c *Client) CreateAccount(req *types.CreateAccountRequest) (*types.CreateAc
 	err := request(c, types.CreateAccountPath, req, resp)
 	return resp, err
 }
+
+func (c *Client) IsValidPublicAddress(req *types.IsValidPublicAddressRequest) (*types.IsValidPublicAddressResponse, error) {
+	resp := &types.IsValidPublicAddressResponse{}
+	err := request(c, types.IsValidPublicAddressPath, req, resp)
+	return resp, err
+}

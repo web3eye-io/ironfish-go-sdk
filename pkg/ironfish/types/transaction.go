@@ -22,8 +22,8 @@ const CreateTransactionPath = "wallet/createTransaction"
 type CreateTransactionRequest struct {
 	Account string   `json:"account"`
 	Outputs []Output `json:"outputs"`
-	Fee     string   `json:"fee"`
-	// FeeRate         string   `json:"feeRate"`
+	// Fee     string   `json:"fee"`
+	FeeRate string `json:"feeRate"`
 	// Expiration      uint     `json:"expiration"`
 	// ExpirationDelta uint     `json:"expirationDelta"`
 	// Confirmations   uint     `json:"confirmations"`
@@ -85,6 +85,12 @@ type AccountDecryptedNote struct {
 	Spent     bool   `json:"spent"`
 }
 
+type RpcSpend struct {
+	Nullifier  string `json:"nullifier"`
+	Commitment string `json:"commitment"`
+	Size       int    `json:"size"`
+}
+
 type GetAccountTransactionRequest struct {
 	Hash          string `json:"hash"`
 	Account       string `json:"account"`
@@ -96,6 +102,7 @@ type GetAccountTransactionResponse struct {
 	Transaction struct {
 		Hash               string                 `json:"hash"`
 		Status             TransactionStatus      `json:"status"`
+		Confirmations      int                    `json:"confirmations"`
 		Type               string                 `json:"type"`
 		Fee                string                 `json:"fee"`
 		BlockHash          string                 `json:"blockHash"`
@@ -105,11 +112,13 @@ type GetAccountTransactionResponse struct {
 		MintsCount         uint                   `json:"mintsCount"`
 		BurnsCount         uint                   `json:"burnsCount"`
 		Timestamp          uint                   `json:"timestamp"`
+		SubmittedSequence  uint                   `json:"submittedSequence"`
 		Notes              []AccountDecryptedNote `json:"notes"`
+		Spends             []RpcSpend             `json:"spends"`
 		AssetBalanceDeltas []struct {
 			AssetId   string `json:"assetId"`
 			AssetName string `json:"assetName"`
 			Delta     string `json:"delta"`
-		}
+		} `json:"assetBalanceDeltas"`
 	} `json:"transaction"`
 }

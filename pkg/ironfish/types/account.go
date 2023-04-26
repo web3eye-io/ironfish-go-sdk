@@ -66,3 +66,12 @@ type ImportAccountResponse struct {
 	Name             string `json:"name"`
 	IsDefaultAccount bool   `json:"isDefaultAccount"`
 }
+
+const IsValidPublicAddressPath = "chain/isValidPublicAddress"
+
+type IsValidPublicAddressRequest struct {
+	Address string `json:"address"`
+}
+type IsValidPublicAddressResponse struct {
+	Valid bool `json:"valid"`
+}
