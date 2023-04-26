@@ -5,15 +5,13 @@ import (
 	"encoding/hex"
 )
 
-func OverFeeLimit(maxFee uint64, transaction string) (bool, error) {
+// reference ironfish/src/primitives/rawTransation.ts>deserialize
+func GetFee(transaction string) (uint64, error) {
 	hexStr, err := hex.DecodeString(transaction)
 	if err != nil {
-		return false, err
+		return 0, err
 	}
 
 	fee := binary.LittleEndian.Uint64(hexStr)
-	if fee > maxFee {
-		return true, nil
-	}
-	return false, nil
+	return fee, nil
 }
