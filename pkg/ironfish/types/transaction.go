@@ -102,7 +102,7 @@ type GetAccountTransactionResponse struct {
 	Transaction struct {
 		Hash               string                 `json:"hash"`
 		Status             TransactionStatus      `json:"status"`
-		Confirmations      int                    `json:"confirmations"`
+		Confirmations      string                 `json:"confirmations"`
 		Type               string                 `json:"type"`
 		Fee                string                 `json:"fee"`
 		BlockHash          string                 `json:"blockHash"`

@@ -17,7 +17,4 @@ func main() {
 		fmt.Println(err)
 	}
 
-	// efrResp, _ := sdk_on.EstimateFeeRates()
-	// feeRate, _ := strconv.ParseUint(efrResp.Average, 10, 64)
-
 }
