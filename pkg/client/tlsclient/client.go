@@ -78,14 +78,15 @@ func (tc *TlsClient) Request(path string, data []byte) ([]byte, error) {
 	}()
 
 	resp := <-msgChan
-	log.Printf("recv msg, traceID: %s, recv msg: {mid: %d, status: %d, data:%s}, time: %s", traceID, resp.Id, resp.Status, string(resp.Data), time.Now().String())
 	if resp == nil {
+		log.Printf("recv msg, traceID: %s, connection is closed, time: %s", traceID, time.Now().String())
 		wrongMsg := &client.RespWrongMsg{
 			Code:    "500",
 			Message: "connection is closed by ironfish node",
 		}
 		return nil, errors.New(wrongMsg.Message)
 	}
+	log.Printf("recv msg, traceID: %s, recv msg: {mid: %d, status: %d, data:%s}, time: %s", traceID, resp.Id, resp.Status, string(resp.Data), time.Now().String())
 	if resp.Status != 200 {
 		wrongMsg := &client.RespWrongMsg{}
 		json.Unmarshal(resp.Data, wrongMsg)
