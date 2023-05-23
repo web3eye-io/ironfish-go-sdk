@@ -148,7 +148,6 @@ func (tc *TlsClient) recv() {
 		for {
 			<-ticker.C
 			recvData, err := reader.ReadBytes(client.EndChar)
-			log.Printf("recv msg: %v, err: %v", recvData, err)
 			if err != nil {
 				tc.Close()
 				break
