@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"time"
 
 	"github.com/web3eye-io/ironfish-go-sdk/pkg/client"
 	"github.com/web3eye-io/ironfish-go-sdk/pkg/client/tlsclient"
@@ -17,14 +16,12 @@ func NewClient(addr string, authToken string, tlsOn bool) *Client {
 	return &Client{tlsCli}
 }
 
-const RequestTimeout = time.Second * 60
-
 func request[REQ any, RESP any](c client.IronfishClient, path string, req REQ, resp RESP) error {
 	reqData, err := json.Marshal(req)
 	if err != nil {
 		return err
 	}
-	respData, err := c.Request(path, reqData, RequestTimeout)
+	respData, err := c.Request(path, reqData)
 	if err != nil {
 		return err
 	}

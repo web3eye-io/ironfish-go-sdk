@@ -52,6 +52,6 @@ type RespWrongMsg struct {
 }
 type IronfishClient interface {
 	Connect(timeout time.Duration) error
-	Request(path string, data []byte, timeout time.Duration) ([]byte, error)
+	Request(path string, data []byte) ([]byte, error)
 	Close() error
 }

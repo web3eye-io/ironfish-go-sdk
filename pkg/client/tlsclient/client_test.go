@@ -28,20 +28,20 @@ func TestClient(t *testing.T) {
 	assert.NotNil(t, cli)
 	assert.NotNil(t, cli.conn)
 
-	resp, err := cli.Request("wallet/getAccounts", reqMsg, time.Second*3)
+	resp, err := cli.Request("wallet/getAccounts", reqMsg)
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
 
-	resp, err = cli.Request("wallet/getAccounts", reqMsg, time.Second*3)
+	resp, err = cli.Request("wallet/getAccounts", reqMsg)
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
 
 	cli.Close()
-	resp, err = cli.Request("wallet/getAccounts", reqMsg, time.Second*3)
+	resp, err = cli.Request("wallet/getAccounts", reqMsg)
 	assert.NotNil(t, err)
 	assert.Nil(t, resp)
 
-	resp, err = cli.Request("wallet/getAccounts", reqMsg, time.Second*3)
+	resp, err = cli.Request("wallet/getAccounts", reqMsg)
 	assert.NotNil(t, err)
 	assert.Nil(t, resp)
 }

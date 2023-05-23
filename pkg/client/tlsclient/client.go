@@ -65,7 +65,7 @@ func (tc *TlsClient) Connect(timeout time.Duration) error {
 	return nil
 }
 
-func (tc *TlsClient) Request(path string, data []byte, timeout time.Duration) ([]byte, error) {
+func (tc *TlsClient) Request(path string, data []byte) ([]byte, error) {
 	traceID := uuid.NewString()
 	mid, err := tc.sendMsg(path, data, traceID)
 	if err != nil {
@@ -77,28 +77,14 @@ func (tc *TlsClient) Request(path string, data []byte, timeout time.Duration) ([
 		delete(tc.msgChannel, mid)
 	}()
 
-	ticker := time.NewTicker(timeout)
-	checkTicker := time.NewTicker(client.ReadScanTime)
-	for {
-		select {
-		case <-ticker.C:
-			log.Printf("recv failed, traceID: %s, err: request timeout, time: %s", traceID, time.Now().String())
-			return nil, errors.New("request timeout")
-		case <-checkTicker.C:
-			if tc.conn == nil {
-				log.Printf("recv failed, traceID: %s, err: not connect to server, time: %s", traceID, time.Now().String())
-				return nil, errors.New("not connect to server")
-			}
-		case resp := <-tc.msgChannel[mid]:
-			log.Printf("recv msg, traceID: %s, recv msg: {mid: %d, status: %d, data:%s}, time: %s", traceID, resp.Id, resp.Status, string(resp.Data), time.Now().String())
-			if resp.Status != 200 {
-				wrongMsg := &client.RespWrongMsg{}
-				json.Unmarshal(resp.Data, wrongMsg)
-				return nil, errors.New(wrongMsg.Message)
-			}
-			return resp.Data, nil
-		}
+	resp := <-tc.msgChannel[mid]
+	log.Printf("recv msg, traceID: %s, recv msg: {mid: %d, status: %d, data:%s}, time: %s", traceID, resp.Id, resp.Status, string(resp.Data), time.Now().String())
+	if resp.Status != 200 {
+		wrongMsg := &client.RespWrongMsg{}
+		json.Unmarshal(resp.Data, wrongMsg)
+		return nil, errors.New(wrongMsg.Message)
 	}
+	return resp.Data, nil
 }
 
 func (tc *TlsClient) sendMsg(path string, data []byte, traceID string) (uint, error) {
