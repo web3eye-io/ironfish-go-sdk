@@ -59,8 +59,9 @@ func (tc *TlsClient) Connect(timeout time.Duration) error {
 		tc.conn = conn
 	}
 
-	go tc.recv()
 	tc.connChannel = make(chan bool)
+	go tc.recv()
+
 	return nil
 }
 
@@ -80,12 +81,9 @@ func (tc *TlsClient) Request(path string, data []byte) ([]byte, error) {
 	resp := <-msgChan
 	if resp == nil {
 		log.Printf("recv msg, traceID: %s, connection is closed, time: %s", traceID, time.Now().String())
-		wrongMsg := &client.RespWrongMsg{
-			Code:    "500",
-			Message: "connection is closed by ironfish node",
-		}
-		return nil, errors.New(wrongMsg.Message)
+		return nil, errors.New("connection is closed by ironfish node")
 	}
+
 	log.Printf("recv msg, traceID: %s, recv msg: {mid: %d, status: %d, data:%s}, time: %s", traceID, resp.Id, resp.Status, string(resp.Data), time.Now().String())
 	if resp.Status != 200 {
 		wrongMsg := &client.RespWrongMsg{}
@@ -185,6 +183,11 @@ func (tc *TlsClient) Close() error {
 		tc.msgMap.Delete(key)
 		return true
 	})
-	tc.connChannel <- false
+	tc.lk.Lock()
+	if tc.connChannel != nil {
+		close(tc.connChannel)
+		tc.connChannel = nil
+	}
+	tc.lk.Unlock()
 	return nil
 }
