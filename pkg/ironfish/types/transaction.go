@@ -37,7 +37,7 @@ const PostTransactionPath = "wallet/postTransaction"
 type PostTransactionRequest struct {
 	Account     string `json:"account"`
 	Transaction string `json:"transaction"`
-	// Broadcast   bool   `json:"broadcast"`
+	Broadcast   bool   `json:"broadcast"`
 }
 type PostTransactionResponse struct {
 	Hash        string `json:"hash"`
