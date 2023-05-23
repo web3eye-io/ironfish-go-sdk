@@ -28,13 +28,12 @@ type TlsClient struct {
 
 func NewClient(addr string, authToken string, tlsOn bool) *TlsClient {
 	return &TlsClient{
-		Address:     addr,
-		AuthToken:   authToken,
-		tlsOn:       tlsOn,
-		lk:          sync.Mutex{},
-		msgCount:    1,
-		msgMap:      sync.Map{},
-		connChannel: make(chan bool),
+		Address:   addr,
+		AuthToken: authToken,
+		tlsOn:     tlsOn,
+		lk:        sync.Mutex{},
+		msgCount:  1,
+		msgMap:    sync.Map{},
 	}
 }
 
@@ -153,6 +152,7 @@ func (tc *TlsClient) recv() {
 			log.Printf("recv msg: %v, err: %v", recvData, err)
 			if err != nil {
 				tc.Close()
+				break
 			}
 			if len(recvData) < 2 {
 				continue
@@ -176,8 +176,6 @@ func (tc *TlsClient) recv() {
 }
 
 func (tc *TlsClient) Close() error {
-	tc.connChannel <- false
-	tc.lk.Lock()
 	tc.msgMap.Range(func(key, value interface{}) bool {
 		if ch, ok := tc.msgMap.Load(key); ok {
 			close(ch.(chan *client.RespMsgData))
@@ -186,6 +184,6 @@ func (tc *TlsClient) Close() error {
 		tc.msgMap.Delete(key)
 		return true
 	})
-	tc.lk.Unlock()
+	tc.connChannel <- false
 	return nil
 }
