@@ -22,7 +22,7 @@ type TlsClient struct {
 	msgCount    uint
 	conn        net.Conn
 	lk          sync.Mutex
-	msgChannel  map[uint]chan client.RespMsgData
+	msgMap      sync.Map
 	connChannel chan bool
 }
 
@@ -33,7 +33,7 @@ func NewClient(addr string, authToken string, tlsOn bool) *TlsClient {
 		tlsOn:       tlsOn,
 		lk:          sync.Mutex{},
 		msgCount:    1,
-		msgChannel:  make(map[uint]chan client.RespMsgData),
+		msgMap:      sync.Map{},
 		connChannel: make(chan bool),
 	}
 }
@@ -72,13 +72,21 @@ func (tc *TlsClient) Request(path string, data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	tc.msgChannel[mid] = make(chan client.RespMsgData)
+	msgChan := make(chan *client.RespMsgData)
+	tc.msgMap.Store(mid, msgChan)
 	defer func() {
-		delete(tc.msgChannel, mid)
+		tc.msgMap.Delete(mid)
 	}()
 
-	resp := <-tc.msgChannel[mid]
+	resp := <-msgChan
 	log.Printf("recv msg, traceID: %s, recv msg: {mid: %d, status: %d, data:%s}, time: %s", traceID, resp.Id, resp.Status, string(resp.Data), time.Now().String())
+	if resp == nil {
+		wrongMsg := &client.RespWrongMsg{
+			Code:    "500",
+			Message: "connection is closed by ironfish node",
+		}
+		return nil, errors.New(wrongMsg.Message)
+	}
 	if resp.Status != 200 {
 		wrongMsg := &client.RespWrongMsg{}
 		json.Unmarshal(resp.Data, wrongMsg)
@@ -142,9 +150,8 @@ func (tc *TlsClient) recv() {
 		for {
 			<-ticker.C
 			recvData, err := reader.ReadBytes(client.EndChar)
-			log.Printf("recv msg %v, err %v", recvData, err)
+			log.Printf("recv msg: %v, err: %v", recvData, err)
 			if err != nil {
-				fmt.Println(err)
 				tc.Close()
 			}
 			if len(recvData) < 2 {
@@ -155,8 +162,8 @@ func (tc *TlsClient) recv() {
 			if err != nil {
 				fmt.Println(err)
 			}
-			if ok := tc.msgChannel[respMsg.MsgData.Id]; ok != nil {
-				tc.msgChannel[respMsg.MsgData.Id] <- respMsg.MsgData
+			if ch, ok := tc.msgMap.Load(respMsg.MsgData.Id); ok {
+				ch.(chan *client.RespMsgData) <- &respMsg.MsgData
 			}
 		}
 	}()
@@ -171,9 +178,14 @@ func (tc *TlsClient) recv() {
 func (tc *TlsClient) Close() error {
 	tc.connChannel <- false
 	tc.lk.Lock()
-	for k := range tc.msgChannel {
-		delete(tc.msgChannel, k)
-	}
+	tc.msgMap.Range(func(key, value interface{}) bool {
+		if ch, ok := tc.msgMap.Load(key); ok {
+			close(ch.(chan *client.RespMsgData))
+		}
+
+		tc.msgMap.Delete(key)
+		return true
+	})
 	tc.lk.Unlock()
 	return nil
 }
